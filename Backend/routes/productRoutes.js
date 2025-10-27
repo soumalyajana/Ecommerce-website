@@ -1,12 +1,13 @@
 import express from "express";
 import upload from "../middleware/multer.js";
-import { addProduct , listProducts , getProductById , deleteProduct , listProductsByCategory} from "../controllers/productController.js";
-
+import { addProduct , listProducts , getProductById , deleteProduct } from "../controllers/productController.js";
+import auth from "../middleware/adminAuth.js";
+import adminAuth from "../middleware/adminAuth.js";
 const router = express.Router();
 
 // Handle multiple image uploads
 router.post(
-  "/add",
+  "/add", adminAuth,
   upload.fields([
     { name: "image1", maxCount: 1 },
     { name: "image2", maxCount: 1 },
@@ -16,9 +17,9 @@ router.post(
   addProduct
 );
 
-router.post("/remove", deleteProduct);
-//router.post("/single", getAllProducts);
-router.get("/list", listProducts);
+router.post("/remove", adminAuth, deleteProduct);
+router.post("/single", getProductById);
+router.post("/list", listProducts);
 
 
 export default router;

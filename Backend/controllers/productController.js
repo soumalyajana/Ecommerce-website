@@ -79,7 +79,7 @@ export const listProducts = async (req, res) => {
 // 🔍 Get product by ID
 export const getProductById = async (req, res) => {
   try {
-    const product = await productModel.findById(req.params.id);
+    const product = await productModel.findById(req.body.productId);
     if (!product) return res.status(404).json({ message: "Product not found" });
     res.status(200).json(product);
   } catch (error) {
@@ -137,17 +137,8 @@ export const updateProduct = async (req, res) => {
 // ❌ Delete product
 export const deleteProduct = async (req, res) => {
   try {
-    const product = await productModel.findById(req.params.id);
-    if (!product) return res.status(404).json({ message: "Product not found" });
-
-    // Delete images from Cloudinary
-    await Promise.all(
-      product.image.map((img) => cloudinary.uploader.destroy(img.public_id))
-    );
-
-    await productModel.findByIdAndDelete(req.params.id);
-
-    res.status(200).json({ message: "Product deleted successfully" });
+    await productModel.findByIdAndDelete(req.body.id)
+    res.json({success: true , message: "Products Removed"});
   } catch (error) {
     console.error("Error deleting product:", error);
     res.status(500).json({ message: "Server error", error: error.message });

@@ -1,1 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 @import "tailwindcss";
+
+* {
+  font-family: 'Outfit', sans-serif;
+}
+
+/* ✅ Active NavLink style */
+.active {
+  background-color: #ffebf5;
+  border-color: #c586a5; /* lowercase hex for consistency */
+}
+
+/* ✅ Common input/select styles */
+select,
+input,
+textarea {
+  border: 1px solid #c2c2c2;
+  outline: none; /* Remove default browser outline */
+  border-radius: 4px;
+}
+
+/* ✅ Optional: add focus effect */
+select:focus,
+input:focus,
+textarea:focus {
+  border-color: #c586a5;
+  box-shadow: 0 0 3px #c586a5;
+}

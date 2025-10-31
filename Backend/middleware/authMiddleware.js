@@ -13,8 +13,8 @@ const authMiddleware = async (req, res, next) => {
 
     // Verify token
     const decoded = jwt.verify(jwtToken, process.env.JWT_SECRET);
-    req.user = decoded; // You can access user data later using req.user
-
+    req.user = decoded; // You can access user data later using req.use
+    req.userId = decoded.id || decoded._id;
     next();
   } catch (error) {
     return res.status(401).json({ success: false, message: "Invalid or expired token." });

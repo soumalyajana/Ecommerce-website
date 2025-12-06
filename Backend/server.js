@@ -25,6 +25,10 @@ app.use("/api/product", productRoutes);
 app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRoutes);
 
+app.get("/", (req, res) => {
+    res.send("API is working");
+});
+
 // ✅ Error Handler (optional but recommended)
 app.use(errorMiddleware);
 

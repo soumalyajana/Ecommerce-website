@@ -29,5 +29,13 @@ app.use("/api/order", orderRoutes);
 app.use(errorMiddleware);
 
 // ✅ Server
+// ✅ Server
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
+// Only listen if the file is run directly (not imported as a module)
+// In Vercel, this file is imported, so we export the app instead.
+if (process.env.NODE_ENV !== "production") {
+    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+}
+
+export default app;

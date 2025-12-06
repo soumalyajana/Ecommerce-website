@@ -3,36 +3,47 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// Global variable to cache the connection in serverless environment
+let isConnected = false;
+
 const connectDB = async () => {
   const MONGO_URI = process.env.MONGO_URI;
 
   if (!MONGO_URI) {
     console.error("❌ MONGO_URI not found in environment variables.");
-    process.exit(1);
+    // In serverless, we might not want to exit process immediately, but throw error
+    throw new Error("MONGO_URI not found");
+  }
+
+  // Check if we have a connection to the database or if it's currently connecting or disconnecting
+  if (isConnected) {
+    console.log("✅ MongoDB already connected");
+    return;
+  }
+
+  // Check the mongoose connection state directly
+  if (mongoose.connections.length > 0) {
+    const connectionState = mongoose.connections[0].readyState;
+    if (connectionState === 1) {
+      console.log("✅ MongoDB already connected (Mongoose state)");
+      isConnected = true;
+      return;
+    }
   }
 
   try {
-    await mongoose.connect(MONGO_URI, {
-      // ✅ Helps Mongoose retry longer before throwing "ENOTFOUND"
-      serverSelectionTimeoutMS: 30000,
+    const db = await mongoose.connect(MONGO_URI, {
+      serverSelectionTimeoutMS: 5000, // Reduced timeout for serverless
       socketTimeoutMS: 45000,
-      connectTimeoutMS: 30000,
-      retryWrites: true,
+      connectTimeoutMS: 10000,
     });
 
+    isConnected = db.connections[0].readyState === 1;
     console.log(`✅ MongoDB Connected: ${mongoose.connection.host}`);
   } catch (error) {
     console.error("❌ MongoDB Connection Failed:", error.message);
-
-    // Specific DNS / network issues
-    if (error.message.includes("ENOTFOUND")) {
-      console.error(
-        "💡 Tip: Check your internet or DNS (try 8.8.8.8 / 1.1.1.1 or flush DNS cache)."
-      );
-    }
-
-    // Try reconnecting automatically after 5 seconds
-    setTimeout(connectDB, 5000);
+    // Do not recursively call connectDB or process.exit in serverless
+    throw error;
   }
 };
 
